@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Drone</title>
+  <script src="https://simplewebrtc.com/latest-v2.js"></script>
+  <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+</head>
+<body>
+  <h2>Seekoji Drone Functionality</h2>
+
+  <video height="300" id="localVideo"></video>
+  <div id="remotesVideos"></div>
+  <button id="addDrone">Add Drone</button>
+  <audio id="droneaudio">
+    <source id="droneaudiosrc" type="audio/mp3" src=""></source>
+  </audio>
+
+  <script>
+    var socket = io();
+    var addDroneBtn = document.getElementById('addDrone');
+    addDroneBtn.onclick = onAddDrone;
+
+    function onAddDrone(){
+      var url = "http://mp3url:8000/audio.mp3";
+      socket.emit("dronesignal", url);
+    }
+
+    socket.on('dronesignal', function(url){
+      console.log('got dronesignal on client url - '+url);
+      updateAudioSrc(url);
+    });
+
+    function updateAudioSrc(url){
+      var audioSrc = document.getElementById('droneaudiosrc');
+      audioSrc.src = url;
+      droneaudio.play();
+    }
+
+    var webrtc = new SimpleWebRTC({
+      // the id/element dom element that will hold "our" video
+      localVideoEl: 'localVideo',
+      // the id/element dom element that will hold remote videos
+      remoteVideosEl: 'remotesVideos',
+      // immediately ask for camera access
+      autoRequestMedia: true
+    });
+
+    // we have to wait until it's ready
+    webrtc.on('readyToCall', function () {
+      // you can name it anything
+      webrtc.joinRoom('drone123');
+    });
+  </script>
+</body>
+</html>
