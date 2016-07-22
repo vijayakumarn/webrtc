@@ -17,7 +17,7 @@
   </div>
 
   <div>
-    <video height="300" id="localVideo" autoplay muted></video>
+    <video height="300" id="localVideo" autoplay></video>
     <video height="300" id="remoteVideo" autoplay></video>
   </div>
 
@@ -34,20 +34,20 @@
     webAudio.start();
     webAudio.loadSound('audio.mp3');
 
-    var mixTracksBtn = document.getElementById('mixTracksBtn');
-
     function handleError(error){
       console.log('Error:', error);
     }
 
     getUserMedia({video: true, audio: true}, function (err, stream) {
         console.log('err', err, stream);
-        var localVideoEl = document.getElementById('localVideo');
-        attachMediaStream(stream, localVideoEl);
         localStream = stream;
+        //attach localStream to localVideo
+        attachMediaStream(localStream, document.getElementById('localVideo'));
     });
 
     var peer = new Peer({key: 'lwjd5qra8257b9'});
+    //foimpf1o1rrx80k9
+    //var peer = new Peer('peerserver', {host: 'ec2-52-25-140-219.us-west-2.compute.amazonaws.com', port: 9090, path: '/peerserver', proxied: true})
     peer.on('open', function(id){
       console.log('peer id:', id);
       document.getElementById('peeriddiv').innerHTML = id;
@@ -63,22 +63,22 @@
     function makeCall(){
       var peerid = document.getElementById('peerid').value;
       call = peer.call(peerid, localStream);
-
       call.on('stream', answerCall);
     }
 
-    function answerCall(stream){
+    function answerCall(callstream){
+      var remoteStreamMixed;
       if(mixTracks){
-        remoteStream = mixFunc(stream);
+        remoteStreamMixed = mixFunc(callstream);
       }
-      var remoteVideoEl = document.getElementById('remoteVideo');
-      attachMediaStream(remoteStream, remoteVideoEl);
-      remoteVideo.srcObject = remoteStream;
+      attachMediaStream(remoteStreamMixed, document.getElementById('remoteVideo'));
     }
 
     function mixFunc(stream){
       if(mixTracks){
+        var videoTrackSaved = stream.getVideoTracks()[0];
         var mixedStream = webAudio.applyFilter(stream);
+        mixedStream.addTrack(videoTrackSaved);
         webAudio.addEffect();
         return mixedStream;
       } else {
