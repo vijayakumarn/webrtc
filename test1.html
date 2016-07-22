@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Peerjs call functionality</title>
+  <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+  <script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
+  <script src="https://simplewebrtc.com/latest-v2.js"></script>
+</head>
+<body>
+  <h2>Seekoji Peerjs spike</h2>
+  <p>ability to call each other</p>
+  <video height="300" id="localVideo" autoplay></video>
+  <video height="300" id="remoteVideo" autoplay></video>
+  <input type="text" id="peerid"></input>
+  <button id="callPeerBtn">Call</button>
+  <script src="getusermedia.bundle.js"></script>
+  <script src="attachmediastream.bundle.js"></script>
+  <script>
+    var localStream;
+    var remoteStream;
+
+    function handleError(error){
+      console.log('Error:', error);
+    }
+
+    getUserMedia({video: true, audio: true}, function (err, stream) {
+        console.log('err', err, stream);
+        var localVideoEl = document.getElementById('localVideo');
+        attachMediaStream(stream, localVideoEl);
+        localStream = stream;
+    });
+
+    var peer = new Peer({key: 'lwjd5qra8257b9'});
+    peer.on('open', function(id){
+      console.log('peer id:', id);
+    });
+    peer.on('call', function(call) {
+      // Answer the call, providing our mediaStream
+      call.answer(localStream);
+      attachMediaStream(localStream, document.getElementById('remoteVideo'));
+    });
+    document.getElementById('callPeerBtn').onclick = makeCall;
+
+    var call;
+    function makeCall(){
+      var peerid = document.getElementById('peerid').value;
+      call = peer.call(peerid, localStream);
+
+      call.on('stream', answerCall);
+    }
+
+    function answerCall(stream){
+      remoteStream = stream;
+      var remoteVideoEl = document.getElementById('remoteVideo');
+      attachMediaStream(stream, remoteVideoEl);
+      remoteVideo.srcObject = stream;
+    }
+
+  </script>
+
+</body>
+</html>
