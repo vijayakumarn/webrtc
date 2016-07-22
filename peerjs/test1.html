@@ -7,18 +7,34 @@
   <script src="https://simplewebrtc.com/latest-v2.js"></script>
 </head>
 <body>
-  <h2>Seekoji Peerjs spike</h2>
+  <h2>Peerjs Mix mp3+mic</h2>
   <p>ability to call each other</p>
-  <video height="300" id="localVideo" autoplay></video>
-  <video height="300" id="remoteVideo" autoplay></video>
-  <input type="text" id="peerid"></input>
-  <button id="callPeerBtn">Call</button>
+  <h3>Peer ID: <div id="peeriddiv"></div></h3>
+
+  <div>
+    <input type="text" id="peerid"></input>
+    <button id="callPeerBtn">Call</button>
+  </div>
+
+  <div>
+    <video height="300" id="localVideo" autoplay muted></video>
+    <video height="300" id="remoteVideo" autoplay></video>
+  </div>
+
   <script src="getusermedia.bundle.js"></script>
   <script src="attachmediastream.bundle.js"></script>
   <script src="peer.js"></script>
+  <script src="webaudioextended.js"></script>
   <script>
     var localStream;
     var remoteStream;
+    var mixTracks = true;
+
+    var webAudio = new WebAudioExtended();
+    webAudio.start();
+    webAudio.loadSound('audio.mp3');
+
+    var mixTracksBtn = document.getElementById('mixTracksBtn');
 
     function handleError(error){
       console.log('Error:', error);
@@ -34,6 +50,7 @@
     var peer = new Peer({key: 'lwjd5qra8257b9'});
     peer.on('open', function(id){
       console.log('peer id:', id);
+      document.getElementById('peeriddiv').innerHTML = id;
     });
     peer.on('call', function(call) {
       // Answer the call, providing our mediaStream
@@ -51,10 +68,23 @@
     }
 
     function answerCall(stream){
-      remoteStream = stream;
+      if(mixTracks){
+        remoteStream = mixFunc(stream);
+      }
       var remoteVideoEl = document.getElementById('remoteVideo');
-      attachMediaStream(stream, remoteVideoEl);
-      remoteVideo.srcObject = stream;
+      attachMediaStream(remoteStream, remoteVideoEl);
+      remoteVideo.srcObject = remoteStream;
+    }
+
+    function mixFunc(stream){
+      if(mixTracks){
+        var mixedStream = webAudio.applyFilter(stream);
+        webAudio.addEffect();
+        return mixedStream;
+      } else {
+        return stream;
+      }
+
     }
 
   </script>
