@@ -8,7 +8,6 @@
 </head>
 <body>
   <h2>Peerjs Mix mp3+mic</h2>
-  <p>ability to call each other</p>
   <h3>Peer ID: <div id="peeriddiv"></div></h3>
 
   <div>
@@ -16,9 +15,12 @@
     <button id="callPeerBtn">Call</button>
   </div>
 
+  <br />
+
   <div>
-    <video height="300" id="localVideo" autoplay></video>
-    <video height="300" id="remoteVideo" autoplay></video>
+    <video height="300" id="localVideo" controls autoplay muted></video>
+    <video height="300" id="remoteVideo" controls autoplay></video>
+    <!--<audio src="http://www.soorsangam.com/tanpura/Kali-1-Csharp-L-M.mp3" autoplay></audio>-->
   </div>
 
   <script src="getusermedia.bundle.js"></script>
@@ -32,7 +34,7 @@
 
     var webAudio = new WebAudioExtended();
     webAudio.start();
-    webAudio.loadSound('audio.mp3');
+    webAudio.loadSound('http://www.soorsangam.com/tanpura/Kali-1-Csharp-L-M.mp3');
 
     function handleError(error){
       console.log('Error:', error);
